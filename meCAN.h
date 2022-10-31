@@ -232,13 +232,13 @@ class meCAN1
 private:
   idtype _extIDs = STD_ID_LEN;
   idtype _rxExtended;
-  void setBTR(uint32_t btr);
+  bool setBTR(uint32_t btr);
   void filterInit(void);
   void filter16Init(int bank, int mode, int a = 0, int b = 0, int c = 0, int d = 0); 
   void filter32Init(int bank, int mode, int a, int b);   
 protected:
 public:
-  void begin(int brp = 125, int Rx=PA11,int Tx=PA12,idtype addrType = STD_ID_LEN);
+  bool begin(int brp = 125, int Rx=PA11,int Tx=PA12,idtype addrType = STD_ID_LEN);
   void enableInterrupt(void);
   void disableInterrupt(void);
   void filterList16Init(int bank, int idA = 0, int idB = 0, int idC = 0, int idD = 0);

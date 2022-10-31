@@ -3,12 +3,12 @@
 #include "meCAN.h"
 
 
-void meCAN1::begin(int brp,int Rx,int Tx,idtype addrType)
+bool meCAN1::begin(int brp,int Rx,int Tx,idtype addrType)
 {
 
   uint32_t btr;
   
-  if (_SERIES == 0)  return;
+  if (_SERIES == 0)  return false;
   if (_SERIES == PROC_F1)
   {
     /*
@@ -249,27 +249,36 @@ void meCAN1::begin(int brp,int Rx,int Tx,idtype addrType)
   }     //------  END of Series Types
 
   
-  setBTR(btr);
+  if (!setBTR(btr)) return false;
   filterInit(); 
+  return true;
 }
 
 
-void meCAN1::setBTR(uint32_t btr)
+bool meCAN1::setBTR(uint32_t btr)
 {
-    //  set ABOM 
+  uint32_t start;
+  //  set ABOM 
   periphBit(mcr1,6)=1;
     // exit sleep
   periphBit(mcr1, 1) = 0; 
     //  go into Init mode 
   INRQ = 1;
+  start = millis();
   while(1)
   {
     if (INAK == 1) break;
+	if (millis() - start > 10) return false;
   }
   MMIO32(btr1) = btr; 
     // go into normal mode  
   INRQ = 0;
-  while(INAK);
+  start = millis();
+  while(INAK)
+  {
+	if (millis() - start > 10) return false;
+  }
+  return true;
 }
 
 void meCAN1::filterInit()
