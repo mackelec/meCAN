@@ -17,7 +17,7 @@ The library allows you to control up to two CAN ports, with plans to support thr
 
 #### meCANbuffer - https://github.com/mackelec/meCANbuffer
 - A circurlar FIFO buffer that can be used for Received CAN data.
-
+#### External crystals - SystemClock_Config  https://github.com/mackelec/STM32-External-Crystals---SystemClock_Config
 
 ####  Plenty of meCAN Examples.  Enjoy
 
