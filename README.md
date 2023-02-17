@@ -1,6 +1,6 @@
 # meCAN - Version 2023
 
-## Arduino CAN Library
+## Arduino CAN Library for stm32 bxCAN
 
 meCAN is an Arduino library that provides an easy-to-use interface for communicating over the Controller Area Network (CAN) bus. It has been designed to work with several STM32 microcontroller families, including STM32F0xx, STM32F1xx, STM32F4xx, and STM32L4xx.
 
