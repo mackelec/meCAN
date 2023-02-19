@@ -229,8 +229,9 @@ bool meCAN2::begin(int brp,int Rx,int Tx,idtype addrType)
   GPIO_InitTypeDef gpio_init;
   
   if (_SERIES == 0)  return false;
-
-  __HAL_RCC_CAN2_CLK_ENABLE();
+  #ifdef __HAL_RCC_CAN2_CLK_ENABLE
+    __HAL_RCC_CAN2_CLK_ENABLE();
+  #endif
   bool success;
   success = setup_meCANpin(Rx);
   if (!success) return false;
@@ -247,6 +248,7 @@ bool meCAN2::begin(int brp,int Rx,int Tx,idtype addrType)
 
 bool meCAN2::setBTR(uint32_t btr)
 {
+#ifdef CAN2
   uint32_t start;
   uint32_t _btr = btr;
 
@@ -273,12 +275,14 @@ bool meCAN2::setBTR(uint32_t btr)
   {
     if (millis() - start > 10) {return false;}
   }
+#endif
   return true;
 }
 
 
 void meCAN2::filterInit()
 {
+#ifdef CAN2  
   // FINIT  'init' filter mode 
   SETBIT(CAN1->FMR,0);    // FINIT = 1
   
@@ -298,6 +302,7 @@ void meCAN2::filterInit()
   CLEARBIT(CAN1->FMR,0);    // FINIT = 0
   CAN2->ESR = 0;
   SETBIT(CAN2->RF0R,5);
+#endif
 }
 
 void meCAN2::filter16Init(int bank, int mode, int a, int b, int c, int d)
@@ -314,6 +319,7 @@ void meCAN2::filter16Init(int bank, int mode, int a, int b, int c, int d)
 
 int meCAN2::receive(volatile int &id, volatile int &fltrIdx, volatile uint8_t pData[])
 {
+#ifdef CAN2    
     int len = -1;
     //uint32_t *_RF0R = (uint32_t *)(CAN1_BASE + 0x0C);
     uint32_t *_RI0R = (uint32_t *)(CAN2_BASE + 0x1B0);
@@ -334,12 +340,14 @@ int meCAN2::receive(volatile int &id, volatile int &fltrIdx, volatile uint8_t pD
         CAN2->RF0R |= (1 << 5);                 // release the mailbox
     }
     return len;
+#endif
 }
 
 
 
 bool meCAN2::transmit(int txId, const void *ptr, unsigned int len)
 {
+#ifdef CAN2    
     uint32_t tsr_reg = CAN2->TSR;
     uint32_t *_TIOR = (uint32_t *)(CAN2_BASE + 0x180);
     uint32_t *_TDT0R = (uint32_t *)(CAN2_BASE + 0x184);
@@ -361,24 +369,29 @@ bool meCAN2::transmit(int txId, const void *ptr, unsigned int len)
     *_TDH0R = ((const uint32_t *)ptr)[1];
 
     *_TIOR |= (1 << 0); // tx request
+#endif
     return true;
 }
 
 
 void meCAN2::enableInterrupt()
 {
+  #ifdef CAN2
   NVIC_Set_Priority(64,2);
   uint32_t *_ISER2 = (uint32_t *)(NVIC_BASE+8);
   //---  set the fmpie0 bit, bit 1 to enable fifo interupt
 
   SETBIT(CAN2->IER,1); 
   SETBIT(*_ISER2,0);
+  #endif
 }
 void meCAN2::disableInterrupt()
 {
+  #ifdef CAN2
   uint32_t *_ISER = (uint32_t *)(NVIC_BASE);
   CLEARBIT(CAN2->IER,1); 
   SETBIT(*_ISER,21);
+  #endif
 }
 
 void meCAN2::attachInterrupt(void func()) // copy IRQ table to SRAM, point VTOR reg to it, set IRQ addr to user ISR
