@@ -9,12 +9,16 @@ bool meCAN1::begin(int brp,int Rx,int Tx,idtype addrType)
 {
 
   uint32_t btr;
-  GPIO_InitTypeDef gpio_init;
-  
-  if (_SERIES == 0)  return false;
-
   __HAL_RCC_CAN1_CLK_ENABLE();
 
+  #ifdef STM32F0xx
+    #ifdef PA11_R
+      if (Rx == PA11 || Tx == PA12)
+      {
+        __HAL_REMAP_PIN_ENABLE(HAL_REMAP_PA11_PA12);
+      }
+    #endif
+  #endif
   
   bool success;
   success = setup_meCANpin(Rx);
@@ -117,12 +121,21 @@ void meCAN1::filter32Init(int bank, int mode, int a, int b) //32b filters
 
 void meCAN1::enableInterrupt()
 {
-  NVIC_Set_Priority(20,2); //interrupt_prioity
+  
+  #ifndef STM32F0xx
+    NVIC_Set_Priority(20,2); //interrupt_prioity
+  #else 
+    NVIC_Set_Priority(30,2); //interrupt_prioity
+  #endif
   uint32_t *_ISER = (uint32_t *)(NVIC_BASE);
   //---  set the fmpie0 bit, bit 1 to enable fifo interupt
 
   SETBIT(CAN1->IER,1); 
-  SETBIT(*_ISER,20);
+  #ifndef STM32F0xx
+    SETBIT(*_ISER,20);
+  #else 
+    SETBIT(*_ISER,30);
+  #endif
 }
 void meCAN1::disableInterrupt()
 {
@@ -134,6 +147,7 @@ void meCAN1::disableInterrupt()
 
 void meCAN1::attachInterrupt(void func()) // copy IRQ table to SRAM, point VTOR reg to it, set IRQ addr to user ISR
 {
+    #ifndef STM32F0xx
     static uint8_t newTbl[0xF0] __attribute__((aligned(0x100)));
     uint8_t *pNewTbl = newTbl;
     int origTbl = SCB->VTOR;  //MMIO32(vtor);
@@ -146,6 +160,7 @@ void meCAN1::attachInterrupt(void func()) // copy IRQ table to SRAM, point VTOR 
     SCB->VTOR = reinterpret_cast<uint32_t>(pNewTbl);
     // load vtor register with new tbl location
     enableInterrupt();
+    #endif
 }
 
 bool meCAN1::transmit(int txId, const void *ptr, unsigned int len)

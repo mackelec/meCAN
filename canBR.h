@@ -14,6 +14,17 @@ typedef struct btrSet
 
 const btrSet meBTRset[] = 
 {
+  #ifdef STM32F0
+    //    Clock = 48Mhz
+    {48,10,0x001c012b},
+    {48,20,0x001c0095},
+    {48,50,0x001c003b},
+    {48,100,0x001c001d},
+    {48,125,0x001c0017},
+    {48,250,0x001c000b},
+    {48,500,0x001c0005},
+    {48,1000,0x001c0002},
+  #endif
   #ifdef STM32F1
     //    Clock = 32Mhz
     {32,10,0x001c00c7},
@@ -92,6 +103,7 @@ uint32_t meCanBTR(int bps)
       return 0;break;
   }
   int canClock=meCanClock();
+  Serial1 << "Can Clock = " << canClock << endl;
   for (int i =0;i< (sizeof(meBTRset)/sizeof(meBTRset[0]));i++)
   {
     btrSet b = meBTRset[i];

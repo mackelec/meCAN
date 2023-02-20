@@ -340,7 +340,6 @@ bool clockEnable(int port)
 bool setup_meCANpin(int _pin)
 {
   bool success = false;
-  //Serial1 << "pin LAND = " << _pin << endl;
   GPIO_InitTypeDef gpio_init;
   gpio_init.Mode = GPIO_MODE_AF_PP;
   gpio_init.Pull = GPIO_NOPULL;
@@ -348,14 +347,9 @@ bool setup_meCANpin(int _pin)
 
   for (int i = 0; i < sizeof(pin_info) / sizeof(PinInfo); i++)
   {
-    //Serial1 << "pin = " << pin_info[i].pin_name << endl;
     if (_pin == pin_info[i].pinNumber)
     {
       PinInfo info = pin_info[i];
-      //Serial1 << "pin FOUND" << endl;
-      //GPIO_TypeDef _port = info.port;  //pin2Port(info.pin_name);
-      //int portPin = info.pin2PortPin(info.pin_name);
-      //Serial1.print("port Pin = ");Serial1.println(portPin);
       bool pass = clockEnable(info.portNum);
       gpio_init.Pin = info.gpioInitPin;   //info.pin;
       gpio_init.Alternate = info.alternate_function;

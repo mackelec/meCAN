@@ -26,8 +26,11 @@
 #define MODIFY_BIT(reg, bit, val)  (reg = (reg & ~(1 << bit)) | ((val & 0x1) << bit))
 
 
+  
 #ifdef STM32F1xx
   constexpr static uint32_t gpioABase = 0x40010800UL; // port A
+#elif STM32F0xx
+  constexpr static uint32_t gpioABase = 0x48000000UL; // port A
 #elif STM32F4xx
   constexpr static uint32_t gpioABase = 0x40020000UL; // port A
 #elif STM32L4xx
@@ -206,6 +209,23 @@ static inline volatile uint32_t &periphBit(uint32_t addr, int bitNum) // periphe
 
 #ifndef PD1
   #define PD1 49
+#endif
+
+#ifdef STM32F0xx
+  #ifndef PA11
+    #define PA11 PA11_R
+  #endif
+  #ifndef PA12
+    #define PA12 PA12_R
+  #endif
+  #ifndef PB12
+    #define PB12 0
+    #define PB13 0
+  #endif
+  #ifndef CAN1_BASE
+    #define CAN1_BASE  CAN_BASE
+  #endif
+  
 #endif
 
 enum BitRate : uint16_t
