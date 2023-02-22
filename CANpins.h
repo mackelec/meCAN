@@ -1,8 +1,6 @@
 #pragma once
 #include <arduino.h>
 
-#include <PString.h>
-#include <Streaming.h>
 
 uint16_t      pin2PortPin(int pin);
 GPIO_TypeDef * pin2Port(int pin);
@@ -37,48 +35,48 @@ const PinInfo pin_info[]  =
 #endif
 //-------------------------STM32F1
 #ifdef STM32F1
-  #ifdef AFIO_CAN1_1
-    #ifdef PA11
+  
+  #ifdef PA11
     {PA11, AFIO_CAN1_1, 11, 1, GPIO_PIN_11,GPIOA}, // PA11 - RX
-    #endif
-    #ifdef PA12
-    {PA12, AFIO_CAN1_1, 12, 1, GPIO_PIN_12,GPIOA}, // PA12 - TX
-    #endif
   #endif
+  #ifdef PA12
+    {PA12, AFIO_CAN1_1, 12, 1, GPIO_PIN_12,GPIOA}, // PA12 - TX
+  #endif
+  
   
   #ifdef AFIO_CAN1_2
     #ifdef PB8
-    {PB8, AFIO_CAN1_2, 8, 2, GPIO_PIN_8,GPIOB}, // PB8 - RX
+      {PB8, AFIO_CAN1_2, 8, 2, GPIO_PIN_8,GPIOB}, // PB8 - RX
     #endif
     #ifdef PB9
-    {PB9, AFIO_CAN1_2, 9, 2, GPIO_PIN_9,GPIOB}, // PB9 - TX
+      {PB9, AFIO_CAN1_2, 9, 2, GPIO_PIN_9,GPIOB}, // PB9 - TX
     #endif
   #endif
   
   #ifdef AFIO_CAN1_3
     #ifdef PD0
-    {PD0, AFIO_CAN1_3, 0, 4, GPIO_PIN_0,GPIOD}, // PD0 - RX
+      {PD0, AFIO_CAN1_3, 0, 4, GPIO_PIN_0,GPIOD}, // PD0 - RX
     #endif
     #ifdef PD1
-    {PD1, AFIO_CAN1_3, 1, 4, GPIO_PIN_1,GPIOD}, // PD1 - RX
+      {PD1, AFIO_CAN1_3, 1, 4, GPIO_PIN_1,GPIOD}, // PD1 - RX
     #endif
   #endif
   
   #ifdef AFIO_CAN2_ENABLE
     #ifdef PB5
-    {PB5, AFIO_CAN2_ENABLE, 5, 2, GPIO_PIN_5,GPIOB}, // PB5 - RX
+      {PB5, AFIO_CAN2_ENABLE, 5, 2, GPIO_PIN_5,GPIOB}, // PB5 - RX
     #endif
     #ifdef PB6
-    {PB6, AFIO_CAN2_ENABLE, 6, 2, GPIO_PIN_6,GPIOB}, // PB6 - TX
+      {PB6, AFIO_CAN2_ENABLE, 6, 2, GPIO_PIN_6,GPIOB}, // PB6 - TX
     #endif
   #endif
 
   #ifdef AFIO_CAN2_DISABLE
     #ifdef PB12
-    {PB12, GPIO_AF4_CAN, 12, 2, GPIO_PIN_12, GPIOB}, // PB12 - RX
+      {PB12, GPIO_AF4_CAN, 12, 2, GPIO_PIN_12, GPIOB}, // PB12 - RX
     #endif
     #ifdef PB13
-    {PB13, GPIO_AF4_CAN, 13, 2, GPIO_PIN_13, GPIOB}, // PB13 - TX
+      {PB13, GPIO_AF4_CAN, 13, 2, GPIO_PIN_13, GPIOB}, // PB13 - TX
     #endif
   #endif
 #endif
@@ -352,7 +350,47 @@ bool setup_meCANpin(int _pin)
       PinInfo info = pin_info[i];
       bool pass = clockEnable(info.portNum);
       gpio_init.Pin = info.gpioInitPin;   //info.pin;
+    #ifdef STM32F1
+      switch (_pin)
+      {
+        case PA11:  gpio_init.Mode = GPIO_MODE_INPUT;break;
+        case PA12:  gpio_init.Mode = GPIO_MODE_AF_PP;break;
+        #ifdef PB8  
+          case PB8: gpio_init.Mode = GPIO_MODE_INPUT;break;
+          case PB9:
+            gpio_init.Mode = GPIO_MODE_AF_PP;
+            #ifdef __HAL_AFIO_REMAP_CAN1_2
+              __HAL_AFIO_REMAP_CAN1_2();
+            #endif
+            break;
+        #endif
+        #ifdef PD0
+          case PD0: gpio_init.Mode = GPIO_MODE_INPUT;break;
+          case PD1: 
+            gpio_init.Mode = GPIO_MODE_AF_PP;
+            #ifdef __HAL_AFIO_REMAP_CAN1_3
+              __HAL_AFIO_REMAP_CAN1_3();
+            #endif
+            break;
+        #endif
+        #ifdef PB12
+          case PB12: gpio_init.Mode = GPIO_MODE_INPUT;break;
+          case PB13: gpio_init.Mode = GPIO_MODE_AF_PP;break;
+        #endif
+        #ifdef PB5
+          case PB5: gpio_init.Mode = GPIO_MODE_INPUT;break;
+          case PB6: 
+            gpio_init.Mode = GPIO_MODE_AF_PP;
+            #ifdef __HAL_AFIO_REMAP_CAN2_ENABLE
+              __HAL_AFIO_REMAP_CAN2_ENABLE();
+            #endif
+            break;
+        #endif
+        default: return false;
+      }
+    #else
       gpio_init.Alternate = info.alternate_function;
+    #endif
       HAL_GPIO_Init(info.port, &gpio_init);
       return true;;
     }
