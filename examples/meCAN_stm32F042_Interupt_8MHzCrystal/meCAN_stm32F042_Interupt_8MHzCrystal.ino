@@ -1,6 +1,5 @@
-
+#include "meClock_F0.h"
 extern "C" void CEC_CAN_IRQHandler(void);
-
 
 
 #include <MEcan.h>
@@ -27,7 +26,7 @@ void setup()
 void loop() 
 {
   digitalToggle(LED);
-  Serial1.println("MEcan on stm32F042F using interrupt");
+  Serial1.println("MEcan on stm32F042F, 8Mhz crystal using interrupt");
  // readCAN1();
   sendCAN1();
   while(1)
@@ -61,7 +60,6 @@ void sendCAN1()
   unsigned char out[8] = {8, 7, 6, 5, 4, 3, 2, 1};
   bool result = can1.transmit(200,out,8);
   Serial1.print("CAN1 Transmit = "); Serial1.println(result);
-  
 }
 
 void CEC_CAN_IRQHandler(void)

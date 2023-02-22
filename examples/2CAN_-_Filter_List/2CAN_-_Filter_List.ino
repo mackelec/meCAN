@@ -1,6 +1,6 @@
 
 #include "meClock_F446.h" //---- using external 8MHz crystal
-#include <meCAN.h>
+#include <MEcan.h>
 
 extern "C" void CAN1_RX0_IRQHandler(void);
 extern "C" void CAN2_RX0_IRQHandler(void);
@@ -30,7 +30,7 @@ void setup()
 void loop() 
 {
   digitalToggle(LED);
-  Serial1.println("loop testing - meCAN 2-Filter-Interrupt");
+  Serial1.println("meCAN 2-Filter-Interrupt");
   //readCAN1();
   sendCAN1();
   delay(500);
@@ -72,14 +72,14 @@ void sendCAN1()
 {
   unsigned char out[8] = {8, 7, 6, 5, 4, 3, 2, 1};
   bool result = can1.transmit(200,out,8);
-  Serial1 << "CAN1 Transmit = " << result << endl;
+  Serial1.print("CAN1 Transmit = "); Serial1.println(result);
 }
 
 void sendCAN2()
 {
   unsigned char out[8] = {9, 10, 11, 12, 13, 14, 15, 16};
   bool result = can2.transmit(400,out,8);
-  Serial1 << "CAN2 Transmit = " << result << endl;
+  Serial1.print("CAN2 Transmit = "); Serial1.println(result);
 }
 
 void reportCAN(int canport,int id,int len,uint8_t data[])

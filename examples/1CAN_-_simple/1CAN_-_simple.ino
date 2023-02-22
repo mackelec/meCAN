@@ -1,5 +1,5 @@
 
-#include <meCAN.h>
+#include <MEcan.h>
 
 meCAN1 can1;
 
@@ -37,7 +37,7 @@ void sendCAN1()
 {
   unsigned char out[8] = {8, 7, 6, 5, 4, 3, 2, 1};
   bool result = can1.transmit(200,out,8);
-  Serial1 << "CAN1 Transmit = " << result << endl;
+  Serial1.print("CAN1 Transmit = "); Serial1.println(result);
   
 }
 
